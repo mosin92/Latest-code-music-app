@@ -53,7 +53,7 @@ function LoginScreen({navigation}) {
   const loginWithGoogle = async () => {
     try {
       const signedIN = await signInWithGoogle();
-      console.log(signedIN, '-=-=-=');
+      console.log(signedIN, '-=- Googole 2 log=-=');
       if (signedIN?.user) {
         await getData('Users', signedIN?.user);
         navigation.navigate('Main');

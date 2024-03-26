@@ -30,17 +30,22 @@ const SongPlayer = ({
   const navigation = useNavigation();
   const [currentSongIndex, setCurrentSongIndex] = useState(currentIndex);
   const [isPlaying, setIsPlaying] = useState(
-    playbackState !== "stopped" ? true : false
+    // playbackState !== "stopped" ? true : false
+    playbackState !== "stopped" ? false : true
   );
+
+  
   
   useEffect(() => {
     console.log("currentSongIndex", currentSongIndex);
     console.log("currentIndex", currentIndex);
     setCurrentSongIndex(currentIndex);
+   
   }, [currentIndex]);
 
   useEffect(() => {
     setCurrentSongIndex(currentIndex);
+   
 }, [currentIndex]);
 
 const format = seconds => {
@@ -54,35 +59,103 @@ return `${mins}:${secs}`;
 const togglePlayback = async () => {
 if (isPlaying) {
   await TrackPlayer.pause();
+ 
 } else {
   await TrackPlayer.play();
+ 
 }
 setIsPlaying(!isPlaying);
+
 };
+
+// const skipToNext = async () => {
+// if (currentSongIndex < songsList.length - 1) {
+//   await TrackPlayer.skipToNext();
+ 
+//   onChange((currentSongIndex + 1) % songsList.length);
+//   setCurrentSongIndex((currentSongIndex + 1) % songsList.length);
+ 
+//   setIsPlaying(true);
+  
+// } else {
+//   // Loop back to the first audio
+//   await TrackPlayer.skip(0);
+// }
+// };
+
+//workinh--------------------------------------
+// const skipToNext = async () => {
+//   if (currentSongIndex < songsList.length - 1) {
+//     await TrackPlayer.skipToNext();
+//     onChange((currentSongIndex + 1) % songsList.length);
+//     setCurrentSongIndex((currentSongIndex + 1) % songsList.length);
+//     setIsPlaying(false); // Set isPlaying to false to display the play button
+//   } else {
+//     // Loop back to the first audio
+//     await TrackPlayer.skip(0);
+//     setIsPlaying(false); // Set isPlaying to false to display the play button
+//   }
+// };
 
 const skipToNext = async () => {
-if (currentSongIndex < songsList.length - 1) {
-  await TrackPlayer.skipToNext();
-  onChange((currentSongIndex + 1) % songsList.length);
-  setCurrentSongIndex((currentSongIndex + 1) % songsList.length);
-  setIsPlaying(true);
-} else {
-  // Loop back to the first audio
-  await TrackPlayer.skip(0);
-}
+  if (currentSongIndex < songsList.length - 1) {
+    await TrackPlayer.skipToNext();
+    onChange((currentSongIndex + 1) % songsList.length);
+    setCurrentSongIndex((currentSongIndex + 1) % songsList.length);
+    setIsPlaying(false); // Set isPlaying to true since next song is playing
+  } else {
+    // Loop back to the first audio
+    await TrackPlayer.skip(0);
+    setCurrentSongIndex(0); // Reset the current song index to the first song
+    setIsPlaying(false); // Set isPlaying to true since next song is playing
+  }
 };
 
+
+// const skipToPrevious = async () => {
+// if (currentSongIndex > 0) {
+//   await TrackPlayer.skipToPrevious();
+//   onChange((currentSongIndex - 1) % songsList.length);
+//   setCurrentSongIndex((currentSongIndex - 1) % songsList.length);
+//   setIsPlaying(true);
+// } else {
+//   // Go to the last audio in a circular manner
+//   await TrackPlayer.skip(songsList.length - 1);
+// }
+// };
+
+
+// const skipToPrevious = async () => {
+//   if (currentSongIndex > 0) {
+//     await TrackPlayer.pause(); // Pause the player
+//     await TrackPlayer.skipToPrevious();
+//     onChange((currentSongIndex - 1) % songsList.length);
+//     setCurrentSongIndex((currentSongIndex - 1) % songsList.length);
+//     setIsPlaying(false); // Set isPlaying to false to display the play button
+//   } else {
+//     // Go to the last audio in a circular manner
+//     await TrackPlayer.pause(); // Pause the player
+//     await TrackPlayer.skip(songsList.length - 1);
+//     setCurrentSongIndex(songsList.length - 1);
+//     setIsPlaying(false); // Set isPlaying to false to display the play button
+//   }
+// };
+
 const skipToPrevious = async () => {
-if (currentSongIndex > 0) {
-  await TrackPlayer.skipToPrevious();
-  onChange((currentSongIndex - 1) % songsList.length);
-  setCurrentSongIndex((currentSongIndex - 1) % songsList.length);
-  setIsPlaying(true);
-} else {
-  // Go to the last audio in a circular manner
-  await TrackPlayer.skip(songsList.length - 1);
-}
+  let newIndex = currentSongIndex - 1;
+  if (newIndex < 0) {
+    newIndex = songsList.length - 1; // Go to the last song if at the beginning
+  }
+
+  await TrackPlayer.pause(); // Pause the player
+  await TrackPlayer.skip(newIndex);
+
+  setCurrentSongIndex(newIndex); // Update the current song index
+
+  setIsPlaying(false); // Set isPlaying to false to display the play button
 };
+
+
 
 // const restartAudio = async () => {
 // await TrackPlayer.seekTo(0);
@@ -93,6 +166,7 @@ if (currentSongIndex > 0) {
 
   const restartAudio = async () => {
     await TrackPlayer.seekTo(0);
+    await TrackPlayer.play(); 
   };
 
  
@@ -114,10 +188,14 @@ if (currentSongIndex > 0) {
 
           <TouchableOpacity
             style={{ marginTop: 0, marginLeft: 20 }}
-            onPress={() => onClose()}
+            onPress={() => {
+              onClose();
+              setIsPlaying(false); // Set isPlaying to false when down arrow is clicked
+            }}
+            
           >
             <Image
-              source={require("./src/images/down-arrow.png")}
+              source={require("./src/images/down-arrow.webp")}
               style={{
                 marginTop: 30,
                 width: 30,
@@ -316,5 +394,4 @@ const styles = StyleSheet.create({
 });
 
 export default SongPlayer;
-
 
